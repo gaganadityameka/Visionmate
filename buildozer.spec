@@ -47,7 +47,7 @@ requirements = python3,kivy,ultralytics,gtts,SpeechRecognition,temp,opencv,queue
 #presplash.filename = %(source.dir)s/data/presplash.png
 
 # (str) Icon of the application
-icon.filename = %(source.dir)s/icon.jpg
+icon.filename = %(source.dir)s/icon.png
 
 # (list) Supported orientations
 # Valid options are: landscape, portrait, portrait-reverse or landscape-reverse
