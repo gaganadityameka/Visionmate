@@ -17,7 +17,6 @@ from queue import Queue
 from kivy.lang import Builder
 from kivy.uix.label import Label
 
-
 class ObjectDetectionApp(App):
     def build(self):
         # Create the main layout
@@ -68,7 +67,7 @@ class ObjectDetectionApp(App):
         with open(csv_file_path, mode='r') as file:
             csv_reader = csv.DictReader(file)
             for row in csv_reader:
-                self.object_sizes[row['Object']] = float(row['Width(cm)']) / 100  # cm to meters
+                self.object_sizes[row['Object'].strip()] = float(row['Width(cm)']) / 100  # cm to meters
 
         # Camera parameters
         self.focal_length = 800  # Example focal length in pixels
@@ -101,7 +100,7 @@ class ObjectDetectionApp(App):
                 if "start" in command and not self.capture_running:
                     self.start_capture()
                 elif "stop" in command and self.capture_running:
-                    self.stop()
+                    self.stop_capture()
             except sr.UnknownValueError:
                 print("Could not understand audio")
             except sr.RequestError as e:
@@ -222,22 +221,17 @@ class ObjectDetectionApp(App):
             with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as temp_file:
                 self.temp_audio_file_path = temp_file.name
                 tts.save(self.temp_audio_file_path)
-            threading.Thread(target=self._play_audio, daemon=True).start()
+            sound = SoundLoader.load(self.temp_audio_file_path)
+            if sound:
+                sound.play()
+                sound.bind(on_stop=self.audio_playback_finished)
+            else:
+                self.audio_playing = False
 
-    def _play_audio(self):
-        sound = SoundLoader.load(self.temp_audio_file_path)
-        if sound:
-            sound.play()
-            sound.bind(on_stop=self.on_audio_stop)
-
-    def on_audio_stop(self, instance):
-        self.audio_playing = False
-        if self.temp_audio_file_path:
+    def audio_playback_finished(self, instance):
+        if self.temp_audio_file_path and os.path.exists(self.temp_audio_file_path):
             os.remove(self.temp_audio_file_path)
-
-    def on_stop(self):
-        if hasattr(self, 'cap'):
-            self.cap.release()
+        self.audio_playing = False
 
 if __name__ == '__main__':
     ObjectDetectionApp().run()
