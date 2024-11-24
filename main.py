@@ -16,9 +16,16 @@ import speech_recognition as sr
 from queue import Queue
 from kivy.lang import Builder
 from kivy.uix.label import Label
+from android.storage import app_storage_path
 
 class ObjectDetectionApp(App):
     def build(self):
+        # Get the app's storage directory path
+        app_dir = app_storage_path()
+
+        # Define the path to the YOLO model
+        model_path = f"{app_dir}/yolov8l.pt"
+        
         # Create the main layout
         layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
 
